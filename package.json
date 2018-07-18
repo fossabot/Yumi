@@ -1,0 +1,15 @@
+{
+  "name": "@eduen/yumi",
+  "version": "0.1.0-dev",
+  "description": "Un bot de caracter multi-propósito completamente en español",
+  "license": "AGPL-3.0-or-later",
+  "keywords": [
+    "discord-bot"
+  ],
+  "scripts": {
+    "start": "node bin/bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^11.3.2"
+  }
+}
