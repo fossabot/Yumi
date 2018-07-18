@@ -4,7 +4,7 @@ module.exports = Bot
 
 const proto = Bot.prototype
 
-proto.start = function BotStart() {
+proto.start = function () {
   const { token, client } = this
   if (!token) return Promise.reject(new Error('no se ha especificado un token'))
   client.on('message', this.handler)
@@ -15,17 +15,17 @@ proto.start = function BotStart() {
     })
 }
 
-proto.stop = function BotStop() {
+proto.stop = function () {
   this.client.destroy()
 }
 
 function Bot (client = new DiscordClient()) {
   this.client = client
   this.commands = {},
-  this.handler = BotMessageHandler
+  this.handler = botMessageHandler
 
   const self = this
-  function BotMessageHandler(message) {
+  function botMessageHandler(message) {
     const { content } = message
     const prefix = self.prefix || 'yu!'
     if (!content.startsWith(prefix)) return

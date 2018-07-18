@@ -10,6 +10,7 @@
     "start": "node bin/bot.js"
   },
   "dependencies": {
-    "discord.js": "^11.3.2"
+    "discord.js": "^11.3.2",
+    "node-html-parser": "^1.1.8"
   }
 }
