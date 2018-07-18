@@ -8,6 +8,7 @@ client.on('ready', () => {
 })
 
 bot.token = process.env.YUMI_TOKEN
+bot.commands = require('../src/commands.js')
 bot
   .start()
   .catch((err) => {
