@@ -32,6 +32,16 @@ function Bot (client = new DiscordClient()) {
     const args = content.substr(prefix.length).trim().split(' ')
     let cmd = args.shift()
     cmd = self.commands[cmd]
-    if (cmd) cmd(message, args)
+    if (!cmd) return
+    try {
+      const r = cmd(message, args)
+    } catch (err)  {
+      botErrorHandler(err)
+    }
+    if (r instanceof Promise) r.catch(botErrorHandler)
   }
+}
+
+function botErrorHandler (err) {
+  console.error(err)
 }
