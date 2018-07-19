@@ -17,11 +17,21 @@ Drae.search = function search (word) {
         console.warn(body)
         return reject(new Error(`hubo un error al hacer la solicitud, statusCode: ${statusCode}`))
       }
-      const d = parse(body, { script: true })
+      var d = parse(body, { script: true })
       const chlg = d.querySelector('body').attributes.onload === 'challenge()'
-      if (!chlg) return resolve(d)
-      return resolve(challenge(d, word))
-    })
+      if (!chlg) return reject(new Error('no implementado'))
+      challenge(d, word).then(resolve)
+     })
+  })
+  .then((d) => {
+    d = parse(d)
+    const artc = d.querySelector('article')
+    if (!artc) return undefined
+    const word = {}
+    const origin = artc.querySelector('.n2')
+    if (origin) word.origin = origin.text
+    word.meanings = artc.querySelectorAll('.j').map((m) => m.text)
+    return word
   })
 }
 
@@ -39,12 +49,7 @@ function challenge (d, word) {
         console.warn(body)
         return reject(new Error(`hubo un error al hacer la solicitud, statusCode: ${statusCode}`))
       }
-      const word = {}
-      const artc = parse(body).querySelector('article')
-      word.url = `http://dle.rae.es/?id=` + artc.attributes.id
-      word.origin = artc.querySelector('.n2').text
-      word.meanings = artc.querySelectorAll('.j').map((m) => m.text)
-      resolve(word)
+      resolve(body)
      })
   })
 }

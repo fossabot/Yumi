@@ -9,25 +9,26 @@ cmds.say = function (msg, args) {
 }
 
 cmds.drae = function (msg, args) {
-  if (args.length > 1) return
-  const word = args.join('')
-  Drae
+  const word = args[0]
+  return Drae
     .search(word)
     .then((data) => {
-      msg.channel.send(new RichEmbed({
+      if (!data) return msg.channel.send('Ninguna coincidencia para: ' + word)
+      const embed = new RichEmbed({
         "title": `Definición de: ${word}`,
-        "url": data.url,
         "author": {
-          "name": "Diccionario de la lengua Española",
+          "name": "Diccionario de la Lengua Española",
           "url": "https://dle.rae.es/"
         },
         "description": data.meanings.join('\n'),
         "footer": {
-          "text": "Mostrando 1 de 1"
+          "text": 'Proporcionado por http://rae.es/'
         },
         "thumbnail": {
           "url": "http://dle.rae.es/images/logos/151x184xdle151x184.jpg.pagespeed.ic.hy18q1eIBQ.jpg"
         }
-      }))
+      })
+      if (data.url) embed.url = data.url
+      return msg.channel.send(embed)
     })
 }
