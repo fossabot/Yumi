@@ -5,7 +5,11 @@ const cmds = module.exports = {}
 
 cmds.say = function (msg, args) {
   const text = args.join(' ')
-  msg.channel.send(text)
+  try {
+    return msg.channel.send(new RichEmbed(JSON.parse(text)))
+  } catch(err) {
+    return msg.channel.send(text)
+  }
 }
 
 cmds.drae = function (msg, args) {
