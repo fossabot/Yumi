@@ -2,7 +2,7 @@
   "name": "@eduen/yumi",
   "version": "0.1.0-dev",
   "description": "Un bot de caracter multi-propósito completamente en español",
-  "license": "AGPL-3.0-or-later",
+  "license": "AGPL-3.0",
   "keywords": [
     "discord-bot"
   ],
