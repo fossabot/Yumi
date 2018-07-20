@@ -152,7 +152,7 @@ cmds.help = function (msg, args){
 }
 
 cmds.kick = function (msg, args) {
-  if (msg.channel.type !== 'text') return
+  if (msg.channel.type !== 'text') return Promise.resolve()
   return msg.guild
     .fetchMember(msg.author)
     .then((user) => {
