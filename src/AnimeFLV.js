@@ -5,7 +5,7 @@ const { get: distance } = require('fast-levenshtein')
 const AnimeFLV = module.exports = {}
 
 AnimeFLV.search = function (anime) {
-  return new Promise((resolve, reject) => { 
+  return new Promise((resolve, reject) => {
     req
      .post('https://animeflv.net/api/animes/search')
      .type('form')
@@ -25,7 +25,7 @@ AnimeFLV.search = function (anime) {
     const best = {value: undefined, distance: Infinity }
     for (var item of items) {
       var d = distance(item.title, anime)
-      if (d < best.distance) { 
+      if (d < best.distance) {
         best.value = item
         best.distance = d
       }
@@ -70,7 +70,7 @@ function fetchAnime(anime)
     const rating = parseFloat(d.querySelector('.vtprmd').text)
     const image = `https://animeflv.net` + d.querySelector('.AnimeCover img').attributes["data-cfsrc"]
     const { anime_info: info, episodes } = grabVars(d.querySelectorAll('script')[17].text)
-    return { title, description, state, votes, rating, 
+    return { title, description, state, votes, rating,
              genres, url, alt, image, info, episodes }
   })
 }
@@ -82,5 +82,5 @@ function grabVars(js) {
     ma = m.match(/var\s(\w?[\w\d$_]+)\s=([^;\n]*)/)
     vars[ma[1]] = JSON.parse(ma[2])
   })
-  return vars  
+  return vars
 }
