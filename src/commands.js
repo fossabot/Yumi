@@ -139,6 +139,17 @@ cmds.vndb = function (msg, args)
     }
 }
 
+cmds.help = function (msg, args){
+  const { bot } = msg
+  const { username: botName } = msg.client.user
+  const commands = Object.keys(cmds).map((cmd) => bot.prefix + cmd).join('\n')
+  const embed = new RichEmbed({
+    'title': botName,
+    'description': `Comandos disponibles:\n${commands}`
+  })
+  return msg.channel.send(embed)
+}
+
 function isNsfw(channel) {
   return channel.nsfw || channel.type === 'dm'
 }
