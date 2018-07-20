@@ -31,19 +31,14 @@ function Bot (client = new DiscordClient()) {
     const args = text.substr(prefix.length).trim().split(' ')
     let cmd = self.commands[args.shift()]
     if (!cmd) return
+    chnl.startTyping()
     try {
-      var r = chnl.startTyping()
-      r = cmd(msg, args)
+      var r = cmd(msg, args)
     } catch (err)  {
       botErrorHandler(err)
     }
-    if (!r instanceof Promise) return chnl.stopTyping()
-    return r.catch((err) => {
-      botErrorHandler(err)
-    })
-    .then(() => {
-      chnl.stopTyping()
-    })
+    if (r instanceof Promise) return r.catch(botErrorHandler).then(() => chnl.stopTyping())
+    chnl.stopTyping()
   }
 }
 
