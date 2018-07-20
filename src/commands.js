@@ -2,7 +2,7 @@ const Drae = require('./Drae.js')
 const AnimeFLV = require('./AnimeFLV.js')
 const VNDBSocket = require('./VNDB.js')
 const { get: distance } = require('fast-levenshtein')
-const RichEmbed = require('discord.js/src/structures/RichEmbed.js')
+const Embed = require('./Embed.js')
 const { FLAGS: Permission } = require('discord.js/src/util/Permissions.js')
  
 const cmds = module.exports = {}
@@ -21,20 +21,18 @@ cmds.drae = function (msg, args) {
   return Drae
     .search(word)
     .then((data) => {
-      if (!data) return msg.channel.send('Ninguna coincidencia para: ' + word)
-      const embed = new RichEmbed({
-        "title": `Definición de: ${word}`,
-        "author": {
-          "name": "Diccionario de la Lengua Española",
-          "url": "https://dle.rae.es/"
-        },
-        "description": data.meanings.join('\n'),
-        "footer": {
-          "text": 'Proporcionado por http://rae.es/',
-          "icon_url": "http://dle.rae.es/images/logos/151x184xdle151x184.jpg.pagespeed.ic.hy18q1eIBQ.jpg"
-        },
-      })
-      if (data.url) embed.url = data.url
+      if (!data) return Promise.resolve()
+      const embed = Embed
+        .create()
+        .setOkColor()
+        .setTitle(`Definición de: ${word}`)
+        .setAuthor(
+          'Diccionario de la lengua Española', 
+          'http://dle.rae.es/images/logos/151x184xdle151x184.jpg.pagespeed.ic.hy18q1eIBQ.jpg', 
+          'https://dle.rae.es'
+        )
+        .safeSetDescription(data.meanings)
+      if (data.url) embed.setUrl(data.url)
       return msg.channel.send(embed)
     })
 }
@@ -45,43 +43,28 @@ cmds.anime = function (msg, args) {
   return AnimeFLV
    .search(txt)
    .then((anime) => {
-      if(!anime) return msg.channel.send(`Sin resultados para: ${txt}`)
+      if(!anime) return Promise.resolve()
       const s = parseInt(anime.rating)
       let stars = ''
       for(let i = 0; i < s; i++) {
         stars += '⭐'
       }
-      const embed = new RichEmbed({
-        'author': {
-          'name': 'AnimeFLV',
-          'url': 'https://animeflv.net'
-        },
-        'title': anime.title,
-        'image': { 'url' : anime.image },
-        'fields': [{
-          'name': 'Sinopsis',
-          'value': anime.description
-        },{
-          'name': 'Géneros',
-          'value': anime.genres.join('\n') || '*sin especificar*',
-          'inline': true
-        }, {
-          'name': 'Ranking',
-          'value': `${stars}\n**${anime.rating}** - ${anime.votes} votos`,
-          'inline': true
-        }, {
-          'name': 'Estado',
-          'value': `**${anime.state.toUpperCase()}**\n${anime.episodes.length} *caps.*`,
-          'inline': true
-        }],
-        'url': anime.url,
-        'footer' : {
-          'text': 'Proporcionado por https://animeflv.net',
-          'icon_url': 'https://i.imgur.com/SVukEKB.png'
-        }
-      })
-      if (anime.alt) embed.description = anime.alt
-      if (anime.info[3]) embed.fields[3].value += `\n*prox. cap.* ${anime.info[3]}`
+      let state = `**${anime.state.toUpperCase()}**\n${anime.episodes.length} *caps.*`
+      const rating = `${stars}\n**${anime.rating}** - ${anime.votes} votos`
+      if (anime.info[3]) rating += `\n*prox. cap.* ${anime.info[3]}`
+
+      const embed = Embed
+        .create()
+        .setOkColor()
+        .setAuthor('AnimeFLV', undefined , 'https://animeflv.net')
+        .setTitle(anime.title)
+        .setImage(anime.image)
+        .addField('Sinopsis', anime.description)
+        .addField('Géneros', anime.genres || '*sin especificar', true)
+        .addField('Ranking', rating, true)
+        .addField('Estado', state, true)
+        .setURL(anime.url)
+      if (anime.alt) embed.setDescription(anime.alt)
       return msg.channel.send(embed)
    })
 }
@@ -117,37 +100,31 @@ cmds.vndb = function (msg, args)
       })
     })
     .then((vn) => {
-      if (!vn) return msg.channel.send('novela no encontrada')
+      if (!vn) return Promise.resolve()
       let { description } = vn
-      if (description.length > 512) description = description.substr(0, 511 - 3) + '...'
-      const embed = new RichEmbed({
-        'title': vn.title,
-        'fields': [{
-          'name': 'Sinopsis',
-          'value': description
-        }]
-      })
-      if (vn.aliases) vn.description = vn.aliases
-      if (isNsfw(msg.channel) || !vn.image_nsfw) embed.image = { url: vn.image }
+      const aliases =  vn.aliases || '*sin especificar*'
+      const embed = Embed.create()
+        .setOkColor()
+        .setTitle(vn.title)
+        .safeSetDescription(vn.description)
+        .safeAddField('Títulos alternativos', aliases)
+      if (isNsfw(msg.channel) || !vn.image_nsfw) embed.setImage(vn.image)
       return msg.channel.send(embed)  
     })
-    .then(closeSocket)
-    .catch(closeSocket)
-
-    function closeSocket (err) {
-      if (err instanceof Error) console.warn(err)
-      return socket.end()
-    }
+    .then(() => {
+      socket.end()
+    })
 }
 
 cmds.help = function (msg, args){
   const { bot } = msg
   const { username: botName } = msg.client.user
-  const commands = Object.keys(cmds).map((cmd) => bot.prefix + cmd).join('\n')
-  const embed = new RichEmbed({
-    'title': botName,
-    'description': `Comandos disponibles:\n${commands}`
-  })
+  const commands = Object.keys(cmds).map((cmd) => bot.prefix + cmd)
+  const embed = Embed
+   .create()
+   .setOkColor()
+   .setTitle('Comandos Disponibles')
+   .safeSetDescription(commands)
   return msg.channel.send(embed)
 }
 
@@ -166,7 +143,8 @@ cmds.kick = function (msg, args) {
          })
          all.push(kick)
       }
-      return Promise.all(all)
+      return Promise
+      .all(all)
       .catch((err) => {
         return msg.channel.send(`Error al kickear ${err.user.username}: ${err.message}`)      
       })       
