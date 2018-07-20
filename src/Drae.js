@@ -1,4 +1,4 @@
-const req = require('unirest')
+const req = require('superagent')
 const { parse } = require('node-html-parser')
 const Util = require('./Util.js')
 
@@ -7,26 +7,20 @@ const Drae = module.exports = {}
 const url = 'http://dle.rae.es/srv/search'
 
 Drae.search = function search (word) {
-  return new Promise((resolve, reject) => {
-    req
-     .get(url)
-     .query({ w: word, m: 3 })
-     .end((res) => {
-      const { statusCode, body } = res
-      if (statusCode !== 200) {
-        console.warn(body)
-        return reject(new Error(`hubo un error al hacer la solicitud, statusCode: ${statusCode}`))
-      }
-      var d = parse(body, { script: true })
-      const chlg = d.querySelector('body').attributes.onload === 'challenge()'
-      if (!chlg) return reject(new Error('no implementado'))
-      challenge(d, word).then(resolve)
-     })
-  })
-  .then((d) => {
+  return req
+   .get(url)
+   .query({ w: word, m: 3 })
+   .then((res) => {
+    if (!res.ok) throw new Error(`hubo un error al hacer la solicitud, statusCode: ${statusCode}`)
+    var d = parse(res.text, { script: true })
+    const chlg = d.querySelector('body').attributes.onload === 'challenge()'
+    if (!chlg) throw new Error('no implementado')
+    return challenge(d, word)
+   })
+   .then((d) => {
     d = parse(d)
     const artc = d.querySelector('article')
-    if (!artc) return undefined
+    if (!artc) return
     const word = {}
     const origin = artc.querySelector('.n2')
     if (origin) word.origin = origin.text
@@ -36,34 +30,23 @@ Drae.search = function search (word) {
 }
 
 function challenge (d, word) {
-  return new Promise((resolve, reject) => {
-    const form = createForm(d)
-    req
-     .post(url)
-     .query({ w: word, m: 3 })
-     .type('form')
-     .send(form)
-     .end((res) => {
-      const { statusCode, body } = res
-      if (statusCode !== 200) {
-        console.warn(body)
-        return reject(new Error(`hubo un error al hacer la solicitud, statusCode: ${statusCode}`))
-      }
-      resolve(body)
-     })
-  })
+  const form = createForm(d)
+  return req
+   .post(url)
+   .query({ w: word, m: 3 })
+   .type('form')
+   .send(form)
+   .then((res) => {
+    const { statusCode, body } = res
+    if (!res.ok) throw new Error(`hubo un error al hacer la solicitud, statusCode: ${statusCode}`)
+    return res.text
+   })
 }
 
 function createForm(d) {
   const form = {}
-  const fields =
-    d
-     .querySelectorAll('input')
-     .map((f) => [ f.attributes.name, f.attributes.value ])
-  fields
-   .forEach((f) => {
-     form[f[0]] = f[1]
-   })
+  const fields = d.querySelectorAll('input').map((f) => [ f.attributes.name, f.attributes.value ])
+  fields.forEach((f) => { form[f[0]] = f[1] })
   form[fields[1][0]] = Util.resolveDrae(Util.grabVarsDrae(d))
   return form
 }
