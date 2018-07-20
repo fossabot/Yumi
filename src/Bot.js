@@ -5,8 +5,9 @@ module.exports = Bot
 const proto = Bot.prototype
 
 proto.start = function () {
-  const { token, client } = this
-  client.on('message', this.handler)
+  const { token, client, handler, prefix } = this
+  this.prefix = prefix || 'yu!'
+  client.on('message', handler)
   return client
     .login(token)
 }
@@ -22,26 +23,26 @@ function Bot (client = new DiscordClient()) {
   this.commands = {},
   this.handler = botMessageHandler
 
-  function botMessageHandler(message) {
-    const { content, channel } = message
-    
-    const prefix = self.prefix || 'yu!'
-    if (!content.startsWith(prefix)) return
-    const args = content.substr(prefix.length).trim().split(' ')
+  function botMessageHandler(msg) {
+    msg.bot = self
+    const { prefix } = self
+    const { content: text, channel: chnl } = msg
+    if (!text.startsWith(prefix)) return
+    const args = text.substr(prefix.length).trim().split(' ')
     let cmd = self.commands[args.shift()]
     if (!cmd) return
     try {
-      var r = channel.startTyping()
-      r = cmd(message, args)
+      var r = chnl.startTyping()
+      r = cmd(msg, args)
     } catch (err)  {
       botErrorHandler(err)
     }
-    if (!r instanceof Promise) return channel.stopTyping()
+    if (!r instanceof Promise) return chnl.stopTyping()
     return r.catch((err) => {
       botErrorHandler(err)
     })
     .then(() => {
-      channel.stopTyping()
+      chnl.stopTyping()
     })
   }
 }
