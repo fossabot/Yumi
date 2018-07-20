@@ -6,13 +6,9 @@ const proto = Bot.prototype
 
 proto.start = function () {
   const { token, client } = this
-  if (!token) return Promise.reject(new Error('no se ha especificado un token'))
   client.on('message', this.handler)
   return client
     .login(token)
-    .catch((O_o) => {
-      throw new Error('token inválido')
-    })
 }
 
 proto.stop = function () {
@@ -20,26 +16,33 @@ proto.stop = function () {
 }
 
 function Bot (client = new DiscordClient()) {
+  const self = this
+
   this.client = client
   this.commands = {},
   this.handler = botMessageHandler
 
-  const self = this
   function botMessageHandler(message) {
-    const { content } = message
+    const { content, channel } = message
+    
     const prefix = self.prefix || 'yu!'
     if (!content.startsWith(prefix)) return
     const args = content.substr(prefix.length).trim().split(' ')
-    let cmd = args.shift()
-    cmd = self.commands[cmd]
+    let cmd = self.commands[args.shift()]
     if (!cmd) return
-    var r
     try {
+      var r = channel.startTyping()
       r = cmd(message, args)
     } catch (err)  {
       botErrorHandler(err)
     }
-    if (r instanceof Promise) r.catch(botErrorHandler)
+    if (!r instanceof Promise) return channel.stopTyping()
+    return r.catch((err) => {
+      botErrorHandler(err)
+    })
+    .then(() => {
+      channel.stopTyping()
+    })
   }
 }
 
