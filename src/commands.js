@@ -1,7 +1,9 @@
-const RichEmbed = require('discord.js/src/structures/RichEmbed.js')
 const Drae = require('./Drae.js')
 const AnimeFLV = require('./AnimeFLV.js')
-
+const VNDBSocket = require('./VNDB.js')
+const { get: distance } = require('fast-levenshtein')
+const RichEmbed = require('discord.js/src/structures/RichEmbed.js')
+ 
 const cmds = module.exports = {}
 
 cmds.say = function (msg, args) {
@@ -81,4 +83,62 @@ cmds.anime = function (msg, args) {
       if (anime.info[3]) embed.fields[3].value += `\n*prox. cap.* ${anime.info[3]}`
       return msg.channel.send(embed)
    })
+}
+
+cmds.vndb = function (msg, args) 
+{
+  const vn = args.join(' ').replace('"', '\\"')
+  if (vn.length === 0) return
+  const socket = new VNDBSocket()
+  return socket
+    .connect()
+    .then(() => {
+      return socket.login({client: 'Yuki', clientver: '0.1.0-dev'})
+    })
+    .then(() => {
+      return socket.send(`get vn basic (title ~ "${vn}")`)
+    })
+    .then((data) => {
+      const best = { value: undefined, distance: Infinity }
+      for (item of data.items) {
+        const d = distance(item.title, vn)
+        if (d < best.distance) {
+          best.value = item
+          best.distance = d
+        }  
+      }
+      return best.value
+    })
+    .then((vn) => {
+      if (!vn) return undefined
+      return socket.send(`get vn basic,details,stats (id = "${vn.id}")`).then((vn) => {
+        return vn.items[0]
+      })
+    })
+    .then((vn) => {
+      if (!vn) return msg.channel.send('novela no encontrada')
+      let { description } = vn
+      if (description.length > 512) description = description.substr(0, 511 - 3) + '...'
+      const embed = new RichEmbed({
+        'title': vn.title,
+        'fields': [{
+          'name': 'Sinopsis',
+          'value': description
+        }]
+      })
+      if (vn.aliases) vn.description = vn.aliases
+      if (isNsfw(msg.channel) || !vn.image_nsfw) embed.image = { url: vn.image }
+      return msg.channel.send(embed)  
+    })
+    .then(closeSocket)
+    .catch(closeSocket)
+
+    function closeSocket (err) {
+      if (err instanceof Error) console.warn(err)
+      return socket.end()
+    }
+}
+
+function isNsfw(channel) {
+  return channel.nsfw || channel.type === 'dm'
 }
