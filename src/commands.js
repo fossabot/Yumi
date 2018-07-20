@@ -50,7 +50,7 @@ cmds.anime = function (msg, args) {
         stars += '⭐'
       }
       let state = `**${anime.state.toUpperCase()}**\n${anime.episodes.length} *caps.*`
-      const rating = `${stars}\n**${anime.rating}** - ${anime.votes} votos`
+      let rating = `${stars}\n**${anime.rating}** - ${anime.votes} votos`
       if (anime.info[3]) rating += `\n*prox. cap.* ${anime.info[3]}`
 
       const embed = Embed
@@ -155,8 +155,7 @@ function isNsfw(channel) {
   return channel.nsfw || channel.type === 'dm'
 }
 
-class KickError extends Error
-{
+class KickError extends Error {
   constructor(user, error)
   {
     super(error.message)
