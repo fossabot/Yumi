@@ -4,7 +4,8 @@ const VNDBSocket = require('./VNDB.js')
 const { get: distance } = require('fast-levenshtein')
 const Embed = require('./Embed.js')
 const { FLAGS: Permission } = require('discord.js/src/util/Permissions.js')
- 
+const req = require('superagent')
+
 const cmds = module.exports = {}
 
 cmds.say = function (msg, args) {
@@ -151,6 +152,24 @@ cmds.kick = function (msg, args) {
     })
 }
 
+cmds["8ball"] = function (msg, args) {
+  const q = args.join(' ')
+  if (q.indexOf('?') < 0) return msg.channel.send('no parece una pregunta')
+  return req
+    .get('https://yesno.wtf/api')
+    .set('Accept', 'application/json')
+    .then((res) => {
+      var {body: res} = res
+      const embed = Embed
+        .create()
+        .setOkColor()
+        .addField('Pregunta', q, true)
+        .addField('Respuesta', yesno[res.answer], true)
+        .setImage(res.image)
+      return msg.channel.send(embed)
+    })
+}
+
 function isNsfw(channel) {
   return channel.nsfw || channel.type === 'dm'
 }
@@ -161,4 +180,10 @@ class KickError extends Error {
     super(error.message)
     this.user = user
   }
+}
+
+var yesno = {
+  "yes": "sí",
+  "no": "no",
+  "maybe": "tal vez"
 }
