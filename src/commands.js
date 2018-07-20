@@ -3,6 +3,7 @@ const AnimeFLV = require('./AnimeFLV.js')
 const VNDBSocket = require('./VNDB.js')
 const { get: distance } = require('fast-levenshtein')
 const RichEmbed = require('discord.js/src/structures/RichEmbed.js')
+const { FLAGS: Permission } = require('discord.js/src/util/Permissions.js')
  
 const cmds = module.exports = {}
 
@@ -150,6 +151,37 @@ cmds.help = function (msg, args){
   return msg.channel.send(embed)
 }
 
+cmds.kick = function (msg, args) {
+  if (msg.channel.type !== 'text') return
+  return msg.guild
+    .fetchMember(msg.author)
+    .then((user) => {
+      if (!user.hasPermission(Permission.KICK_MEMBERS)) return msg.channel.send('No tienes el permiso KICK_MEMBERS')
+      const mentions = msg.mentions.members.array()
+      const all = []
+      for (var guildUser of mentions) {
+        const kick = guildUser.kick()
+         .catch((err) => {
+             throw new KickError(guildUser.user, err)
+         })
+         all.push(kick)
+      }
+      return Promise.all(all)
+      .catch((err) => {
+        return msg.channel.send(`Error al kickear ${err.user.username}: ${err.message}`)      
+      })       
+    })
+}
+
 function isNsfw(channel) {
   return channel.nsfw || channel.type === 'dm'
+}
+
+class KickError extends Error
+{
+  constructor(user, error)
+  {
+    super(error.message)
+    this.user = user
+  }
 }
