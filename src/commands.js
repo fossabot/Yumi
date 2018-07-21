@@ -58,7 +58,7 @@ cmds.anime = function (msg, args) {
         .setImage(anime.image)
         .safeAddField('Sinopsis', anime.description, false, anime.url)
         .addField('Géneros', anime.genres || '*sin especificar', true)
-        .addField('Ranking', `${stars}\n${anime.rating} / 5`, true)
+        .addField('Valoración', `${stars}\n${anime.rating} / 5`, true)
         .addField('Estado', state, true)
         .setURL(anime.url)
       if (anime.alt) embed.setDescription(anime.alt)
