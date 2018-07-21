@@ -95,22 +95,57 @@ cmds.vndb = function (msg, args)
       return best.value
     })
     .then((vn) => {
-      if (!vn) return undefined
+      if (!vn) return
       return socket.send(`get vn basic,details,stats (id = "${vn.id}")`).then((vn) => {
         return vn.items[0]
       })
     })
     .then((vn) => {
-      if (!vn) return Promise.resolve()
-      let { description } = vn
-      const aliases =  vn.aliases || '*sin especificar*'
+      if(!vn) return
+      return socket
+        .send(`get release basic,producers (vn = [${vn.id}])`)
+        .then((res) => {
+          vn.releases = res.items
+          return vn
+        })
+    })
+    .then((vn) => {
+      if (!vn) return
+      const rles = vn.releases
+      const devs = new Set()
+      const pubrs = new Map()
+      for (const rle of rles) {
+        for (const pro of rle.producers) {
+          if (pro.developer) devs.add(pro.name)
+          if (pro.publisher) {
+            for(const lng of rle.languages) {
+              if (!pubrs.has(lng)) pubrs.set(lng, new Set())
+              pubrs.get(lng).add(pro.name)
+            }
+          }
+        }
+      }
+      vn.developers = devs
+      vn.publishers = pubrs
+      return vn
+    })
+    .then((vn) => {
+      if (!vn) return msg.channel.send('novela no encontrada')
+      const publishers = [...vn.publishers].map((a) => `${convert2Emoji(a[0])} ${[...a[1]].join(', ')}`)
       const embed = Embed.create()
         .setOkColor()
         .setTitle(vn.title)
+        .setImage(vn.image)
+        .addField('Títs. Alternativos', vn.aliases || '*ninguno*', true)
+        .addField('Desarrolladores', [...vn.developers], true)
+        .addField('Lenguajes Disponibles', vn.languages.map((lang) => convert2Emoji(lang)).join(', '))
+        .addField('Publicadores', publishers)
+        .addField('Duración', duracion[vn.length - 1], true)
+        .addField('Valoración', vn.rating, true)
+        .addField('Plataformas', vn.platforms.join(', '), true)
         .safeSetDescription(vn.description)
-        .safeAddField('Títulos alternativos', aliases)
-      if (isNsfw(msg.channel) || !vn.image_nsfw) embed.setImage(vn.image)
-      return msg.channel.send(embed)  
+      if (isNsfw(msg.channel) || !vn.nsfw ) embed.setImage(vn.image)
+      return msg.channel.send(embed)
     })
     .then(() => {
       socket.end()
@@ -186,4 +221,33 @@ var yesno = {
   "yes": "sí",
   "no": "no",
   "maybe": "tal vez"
+}
+
+var duracion = ["Muy corta", "Corta", "Media", "Larga", "Muy larga"]
+var flags = {
+  "ae": "🇦🇪",
+  "bg": "🇧🇬",
+  "cz": "🇨🇿",
+  "de": "🇩🇪",
+  "dk": "🇩🇰",
+  "en": "🇬🇧",
+  "es": "🇪🇸",
+  "fi": "🇫🇮",
+  "fr": "🇫🇷",
+  "he": "🇮🇱",
+  "hr": "🇭🇷",
+  "it": "🇮🇹",
+  "pl": "🇵🇹",
+  "pt-br": "🇧🇷",
+  "vi": "🇻🇳",
+  "ja": "🇯🇵",
+  "zh": "🇨🇳",
+  "ru": "🇷🇺"
+}
+
+function convert2Emoji(flag) {
+  if(!flags[flag]) {
+    console.warn('agregar bandera de: '+ flag)
+  }
+  return flags[flag] ? flags[flag] : flag
 }
