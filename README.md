@@ -2,10 +2,11 @@
 # Yumi
 Yumi es un bot multi-propósito y ¡completamente en español!
 
-[yumiko](./yumiko.jpg)
+![yumiko](./yumiko.jpg)
 
 # Instalación
 instalar  _git_ y _nodejs_ 
+
 clonar repositorio
 
 ```sh
