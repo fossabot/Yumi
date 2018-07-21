@@ -47,22 +47,18 @@ cmds.anime = function (msg, args) {
       if (!anime) return Promise.resolve()
       const s = parseInt(anime.rating)
       let stars = ''
-      for (let i = 0; i < s; i++) {
-        stars += '⭐'
-      }
+      for (let i = 0; i < s; i++) stars += '⭐'
       let state = `**${anime.state.toUpperCase()}**\n${anime.episodes.length} *caps.*`
-      let rating = `${stars}\n**${anime.rating}** - ${anime.votes} votos`
-      if (anime.info[3]) rating += `\n*prox. cap.* ${anime.info[3]}`
-
+      if (anime.info[3]) state += `\n*prox. cap.* ${anime.info[3]}`
       const embed = Embed
         .create()
         .setOkColor()
-        .setAuthor('AnimeFLV', undefined, 'https://animeflv.net')
+        .setAuthor('AnimeFLV', 'https://i.imgur.com/mD7g75f.png', 'https://animeflv.net')
         .setTitle(anime.title)
         .setImage(anime.image)
-        .addField('Sinopsis', anime.description)
+        .safeAddField('Sinopsis', anime.description, false, anime.url)
         .addField('Géneros', anime.genres || '*sin especificar', true)
-        .addField('Ranking', rating, true)
+        .addField('Ranking', `${stars}\n${anime.rating} / 5`, true)
         .addField('Estado', state, true)
         .setURL(anime.url)
       if (anime.alt) embed.setDescription(anime.alt)
@@ -126,24 +122,30 @@ cmds.vndb = function (msg, args) {
       }
       vn.developers = devs
       vn.publishers = pubrs
+      vn.url = 'https://vndb.org/v' + vn.id
       return vn
     })
     .then((vn) => {
       if (!vn) return msg.channel.send('novela no encontrada')
+      const s = parseInt(vn.rating / 10 * 5)
+      let stars = ''
+      for (let i = 0; i < s; i++) stars += '⭐'
       const publishers = [...vn.publishers].map((a) => `${convert2Emoji(a[0])} ${[...a[1]].join(', ')}`)
       const embed = Embed.create()
         .setOkColor()
+        .setAuthor('VNDB.org', 'https://s.vndb.org/s/angel/bg.jpg?2.26-88-g14517ba2', 'https://vndb.org')
         .setTitle(vn.title)
         .setImage(vn.image)
-        .addField('Títs. Alternativos', vn.aliases || '*ninguno*', true)
+        .safeAddField('Sinopsis', vn.description, true, vn.url)
         .addField('Desarrolladores', [...vn.developers], true)
         .addField('Lenguajes Disponibles', vn.languages.map((lang) => convert2Emoji(lang)).join(', '))
         .addField('Publicadores', publishers)
-        .addField('Duración', duracion[vn.length - 1], true)
-        .addField('Valoración', vn.rating, true)
+        .addField('Duración', duration[vn.length - 1], true)
+        .addField('Valoración', `${stars}\n${vn.rating} / 10`, true)
         .addField('Plataformas', vn.platforms.join(', '), true)
-        .safeSetDescription(vn.description)
+        .setURL(vn.url)
       if (isNsfw(msg.channel) || !vn.nsfw) embed.setImage(vn.image)
+      if (vn.aliases) embed.setDescription(vn.aliases)
       return msg.channel.send(embed)
     })
     .then(() => {
@@ -220,7 +222,14 @@ var yesno = {
   'maybe': 'tal vez'
 }
 
-var duracion = ['Muy corta', 'Corta', 'Media', 'Larga', 'Muy larga']
+var duration = [
+  '< 2 horas',
+  '2 - 10 horas',
+  '10 - 30 horas',
+  '30 - 50 horas',
+  '> 50 horas'
+]
+
 var flags = {
   'ae': '🇦🇪',
   'bg': '🇧🇬',
