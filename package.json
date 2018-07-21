@@ -1,7 +1,7 @@
 {
   "name": "@eduen/yumi",
   "version": "0.1.0-dev",
-  "description": "Un bot de caracter multi-propósito completamente en español",
+  "description": "Un bot multi-propósito, completamente en español",
   "license": "AGPL-3.0",
   "keywords": [
     "discord-bot"
@@ -11,12 +11,17 @@
     "url": "https://github.com/EduenSarceno/Yumi"
   },
   "scripts": {
-    "start": "node bin/bot.js"
+    "start": "node bin/bot.js",
+    "lint": "standard **/*.js --verbose",
+    "lint:fix": "standard **/*.js --fix"
   },
   "dependencies": {
     "discord.js": "^11.3.2",
     "fast-levenshtein": "^2.0.6",
     "node-html-parser": "^1.1.8",
     "superagent": "^3.8.3"
+  },
+  "devDependencies": {
+    "standard": "^11.0.1"
   }
 }
