@@ -15,7 +15,7 @@ proto.setWarnColor = function () {
 
 proto.safeSetDescription = function (description) {
   let string = resolveString(description)
-  if (string.length > 2048 ) string = string.substr(0, 2044) + '...'
+  if (string.length > 2048) string = string.substr(0, 2044) + '...'
   this.description = string
   return this
 }
@@ -26,8 +26,8 @@ proto.safeAddField = function (name, value, inline) {
   return this.addField(name, val, inline)
 }
 
-function resolveString(data) {
-  if (typeof data === 'string') return data;
-  if (data instanceof Array) return data.join('\n');
-  return String(data);
+function resolveString (data) {
+  if (typeof data === 'string') return data
+  if (data instanceof Array) return data.join('\n')
+  return String(data)
 }
