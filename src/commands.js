@@ -1,6 +1,7 @@
 const Drae = require('./Drae.js')
 const AnimeFLV = require('./AnimeFLV.js')
 const VNDBSocket = require('./VNDB.js')
+const Wikipedia = require('./Wikipedia.js')
 const { get: distance } = require('fast-levenshtein')
 const Embed = require('./Embed.js')
 const { FLAGS: Permission } = require('discord.js/src/util/Permissions.js')
@@ -202,6 +203,20 @@ cmds['8ball'] = function (msg, args) {
         .addField('Respuesta', yesno[res.answer], true)
         .setImage(res.image)
       return msg.channel.send(embed)
+    })
+}
+
+cmds.wiki = function (msg, args) {
+  const q = args.join(' ')
+  return Wikipedia.search(q)
+    .then((doc) => {
+      if (!doc) return msg.send('sin resultados')
+      return msg.channel.send(Embed.create()
+        .setOkColor()
+        .setTitle(doc.title)
+        .setDescription(doc.description || 'sin descripción')
+        .setURL(doc.url)
+      )
     })
 }
 
