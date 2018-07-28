@@ -11,7 +11,7 @@
     "url": "https://github.com/EduenSarceno/Yumi"
   },
   "scripts": {
-    "start": "node bin/bot.js",
+    "start": "node bin/bot.js || true",
     "lint": "(standard --verbose | snazzy) || true",
     "lint:fix": "(standard --fix --verbose | snazzy) || true"
   },
