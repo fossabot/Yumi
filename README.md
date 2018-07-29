@@ -19,7 +19,14 @@ se asume que el usuario tiene instalado y correctamente configurado en `PATH` lo
   cd Yumi && npm install
   ```
 
-3. crear archivo `yumi.config.js`, véase [example-yumi.config.js](./example-yumi.config.js)
+3. crear archivo `yumi.config.js`
+  ```js
+  module.exports = {
+    token: '<token>',
+    prefix: 'yu!'
+  }
+  ```
+Véase el archivo de ejemplo [example-yumi.config.js](./example-yumi.config.js)
 
 4. ejecutar
 
