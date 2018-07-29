@@ -210,13 +210,21 @@ cmds.wiki = function (msg, args) {
   const q = args.join(' ')
   return Wikipedia.search(q)
     .then((doc) => {
-      if (!doc) return msg.send('sin resultados')
-      return msg.channel.send(Embed.create()
+      if (!doc) return msg.channel.send('sin resultados')
+      const embed = Embed.create()
         .setOkColor()
         .setTitle(doc.title)
-        .setDescription(doc.description || 'sin descripción')
         .setURL(doc.url)
-      )
+      if (doc.disambig) {
+        let related = doc.related.map((r) => {
+          return `[${r.title}](<${r.url}>)`
+        })
+        embed.safeSetDescription(doc.description + related.join('\n'))
+      } else {
+        embed.safeSetDescription(doc.description)
+      }
+      if (doc.thumbnail) embed.setThumbnail(doc.thumbnail)
+      return msg.channel.send(embed)
     })
 }
 
