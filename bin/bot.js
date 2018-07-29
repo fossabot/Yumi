@@ -10,13 +10,10 @@ try {
   process.exit(-1)
 }
 
-const bot = new Bot()
-bot.token = config.token
+const bot = new Bot(config)
 bot.commands = require('../src/commands.js')
 
-const { client } = bot
-
-client.on('ready', () => {
+bot.client.on('ready', () => {
   console.log('bot corriendo \\^^/')
 })
 
@@ -28,8 +25,11 @@ bot.start()
 
 function loadConfig () {
   const cfg = path.join(process.cwd(), 'yumi.config.js')
-  if (!fs.existsSync(cfg)) throw new Error('yumi.config.js no existe, para generar uno nuevo tomar como base example-yumi.config.js')
-
+  
+  if (!fs.existsSync(cfg)) {
+    throw new Error('yumi.config.js no existe, para generar uno nuevo tomar como base example-yumi.config.js')
+  }
+  
   try {
     var config = require(cfg)
   } catch (err) {
@@ -37,6 +37,6 @@ function loadConfig () {
     cfgErr.original = err
     throw cfgErr
   }
-
+  
   return config
 }
