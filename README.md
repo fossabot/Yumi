@@ -1,4 +1,3 @@
-
 # Actualización
 Debido a que estaré ocupado con un proyecto (al menos por un mes), tendré que
 pausar el desarrollo de Yumi, no obstante toda sugerencia es bienvenida y el
@@ -11,6 +10,7 @@ no los subiré inmediatamente a github hasta no tener algo realmente estable.
 Yumi es un bot multi-propósito y ¡completamente en español!
 
 ![yumiko](./yumiko.jpg)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FEduenSarceno%2FYumi.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FEduenSarceno%2FYumi?ref=badge_shield)
 
 # Instalación
 se asume que el usuario tiene instalado y correctamente configurado en `PATH` los programas  _git_ y _nodejs_
@@ -64,3 +64,7 @@ Al hacer cambios en el código asegurarse de que seguir la convención publicada
 
 [standard_badge]: https://cdn.rawgit.com/standard/standard/master/badge.svg
 [standard]: https://github.com/standard/standard
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FEduenSarceno%2FYumi.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FEduenSarceno%2FYumi?ref=badge_large)
