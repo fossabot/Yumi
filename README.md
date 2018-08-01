@@ -1,4 +1,12 @@
 
+# Actualización
+Debido a que estaré ocupado con un proyecto (al menos por un mes), tendré que
+pausar el desarrollo de Yumi, no obstante toda sugerencia es bienvenida y el
+proyecto aún está en desarrollo.
+
+Nota: estaré implementando cambios incompatibles en mis tiempos libres, pero
+no los subiré inmediatamente a github hasta no tener algo realmente estable.
+
 # Yumi
 Yumi es un bot multi-propósito y ¡completamente en español!
 
@@ -34,7 +42,7 @@ Véase el archivo de ejemplo [example-yumi.config.js](./example-yumi.config.js)
   npm start
   ```
 
-**Nota:** ignorar las advertencias de **npm** sobre `peerDependencies`, básicamente estas advertencias indican que `discord.js` es compatible con otros módulos, y en caso de instalarse pueden desbloquear nuevas funcionalidades  o bien mejorar sustancialmente el rendimiento de la aplicación.  
+**Nota:** ignorar las advertencias de **npm** sobre `peerDependencies`, básicamente estas advertencias indican que `discord.js` es compatible con otros módulos, y en caso de instalarse pueden desbloquear nuevas funcionalidades  o bien mejorar sustancialmente el rendimiento de la aplicación.
 
 # Contribución
 Para contribuir en el proyecto asegúrate de haber leído antes [CONTRIBUTING.md](./CONTRIBUTING.md).
